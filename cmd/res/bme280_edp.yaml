@@ -1,0 +1,120 @@
+name: "BME280"
+manufacture: "BOSCH"
+model: "bme-280"
+labels: 
+  - "I2C"
+description: "Combined humidity and pressure sensor"
+
+############################## Device Resource Design Guide ##################################################
+# 1. EdgeX driver (protocol) interface is only support read/write two command, so the device resource name
+#    is used to indicate the different data process(i.e data compensation);
+# 2. Attributes field explanation:
+#    2.1 busID, indicate the I2C Bus ID;
+#    2.2 addr, indicate the I2C address;
+#    2.3 reg, indicate the start register address of resource(read operation);
+#    2.4 length, indicate the data length;
+##############################################################################################################
+deviceResources:
+  -
+    #Device ID
+    name: "DeviceID"
+    description: "BME280 Device ID"
+    attributes:
+      { busID: "1", addr: "0x77", reg: "0xD0", length: "1"}
+    properties:
+      value:
+        { type: "UINT8", readWrite: "R"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "1"}
+  -
+    #humidity sensor
+    name: "Humidity"
+    description: "Humidity Sensor"
+    attributes:
+      # softInstruction is used to indicate the read objects(humidity, temp, pressure)
+      { busID: "1", addr: "0x77", reg: "0xFD", length: "2"}
+    properties:
+      value:
+        { type: "float", readWrite: "R"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "%RH"}
+  -
+    #Temperature Sensor
+    name: "Temperature"
+    description: "Temperature Sensor"
+    attributes:
+      { busID: "1", addr: "0x77", reg: "0xFA", length: "3"}
+    properties:
+      value:
+        { type: "float", readWrite: "R"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "Cel"}
+  -
+    #Pressure Sensor
+    name: "Pressure"
+    description: "Pressure Sensor"
+    attributes:
+      { busID: "1", addr: "0x77", reg: "0xF7", length: "3"}
+    properties:
+      value:
+        { type: "float", readWrite: "R"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "Pa"}
+  -
+    # All-in-one Sensors
+    # Because BME280 suggest readout all sensors data once;
+    # readout follow below sequence:
+    # 1. Temperature
+    # 2. Pressure
+    # 3. Humidity
+    name: "AllSensors"
+    description: "Combined humidity & temperature & pressure"
+    attributes:
+      { busID: "1", addr: "0x77", reg: "0xF7", length: "8"}
+    properties:
+      value:
+        { type: "float32array", readWrite: "R"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "[]float32"}
+
+####################################### Environment Configuration ###################################
+# BME280 suggest 4 user cases, for each case, there is different configurations:
+# includes:
+# 1. Weather monitoring
+# 2. Humidity Sensoing
+# 3. Indoor Navigation
+# 4. Gaming
+# After a reset / config operation, need follow an initialization process;
+#####################################################################################################
+  -
+    name: "ModeSetting"
+    description: "Recommended modes of operation"
+    attributes:
+      { busID: "1", addr: "0x77"}
+    properties:
+      value:
+        { type: "UINT32", readWrite: "W", defaultValue: "1"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "1"}
+
+  -
+    name: "SoftReset"
+    description: "BME280 Chip Soft Reset Operation"
+    attributes:
+      { busID: "1", addr: "0x77"}
+    properties:
+      value:
+        { type: "bool", readWrite: "W", defaultValue: "false"}
+      units:
+        { type: "String", readWrite: "R", defaultValue: "1"}
+
+deviceCommands:
+  -
+    name: "AIOSensors"
+    get:
+      - { operation: "get", deviceResource: "AllSensors"}
+
+  -
+    name: "Reset"
+    set:
+      - {operation: "set", deviceResource: "SoftReset", property: "value", parameter: "false"}

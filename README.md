@@ -1,1 +1,1 @@
-# device-bme280-go
+# BME280 Device Service

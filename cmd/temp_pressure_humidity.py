@@ -137,7 +137,7 @@ def readBME280All(addr=DEVICE):
   elif humidity < 0:
     humidity = 0
 
-  return temperature/100.0,pressure/100.0,humidity
+  return temperature/100.0,pressure/1000.0,humidity
 
 def main():
 

@@ -7,16 +7,15 @@ import (
 	"sync"
 )
 
-// SensorHandle ip&mac handle
+// SensorHandle
 type SensorHandle struct {
 	Locker        sync.Mutex
 	SensorInfoMap []float32
 }
 
-// Scout scout ip and mac
+// Scout
 // input command string
 func Scout(command string) ([]float32, error) {
-
 	return scout(strings.Split(command, " "))
 }
 

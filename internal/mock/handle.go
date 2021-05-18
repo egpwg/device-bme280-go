@@ -13,14 +13,9 @@ type SensorHandle struct {
 	SensorInfoMap []float32
 }
 
-// GlobalHandle a global sensor handle
-// var GlobalHandle *SensorHandle
-
 // Scout scout ip and mac
 // input command string
 func Scout(command string) ([]float32, error) {
-	// GlobalHandle.Locker.Lock()
-	// defer GlobalHandle.Locker.Unlock()
 
 	return scout(strings.Split(command, " "))
 }
@@ -54,8 +49,6 @@ func scout(command []string) ([]float32, error) {
 		}
 		result = append(result, float32(vTrue))
 	}
-
-	// GlobalHandle.SensorInfoMap = result
 
 	return result, nil
 }

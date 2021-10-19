@@ -14,6 +14,6 @@ import (
 const serviceName string = "bme280-device-go"
 
 func main() {
-	sd := driver.SimulatorDriver{}
+	sd := driver.Driver{}
 	startup.Bootstrap(serviceName, "0.0.1", &sd)
 }
